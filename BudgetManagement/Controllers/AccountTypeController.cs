@@ -1,6 +1,7 @@
 ﻿using BudgetManagement.Interfaces;
 using BudgetManagement.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.NetworkInformation;
 
 namespace BudgetManagement.Controllers
 {
@@ -62,7 +63,7 @@ namespace BudgetManagement.Controllers
 
             if(accountType == null)
             {
-                return RedirectToAction("NotFound", "Home");
+                return RedirectToAction("NotFoundView", "Home");
             }
 
             return View(accountType);
@@ -81,7 +82,7 @@ namespace BudgetManagement.Controllers
 
             if(accountTypeInDb is null)
             {
-                return RedirectToAction("NotFound", "Home");
+                return RedirectToAction("NotFoundView", "Home");
             }
 
             await _accountTypeRepository.Update(accountType);
@@ -98,7 +99,7 @@ namespace BudgetManagement.Controllers
 
             if (accountType is null)
             {
-                return RedirectToAction("NotFound", "Home");
+                return RedirectToAction("NotFoundView", "Home");
             }
 
             return View(accountType);
@@ -117,7 +118,7 @@ namespace BudgetManagement.Controllers
 
             if (accountType is null)
             {
-                return RedirectToAction("NotFound", "Home");
+                return RedirectToAction("NotFoundView", "Home");
             }
 
             await _accountTypeRepository.Delete(id);
@@ -142,6 +143,33 @@ namespace BudgetManagement.Controllers
             }
 
             return Json(true);
+        }
+
+        /// <summary>
+        /// Method to save the given order of the table in DB
+        /// </summary>
+        /// <param name="ids">ids of the elements in the table to give order</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Order([FromBody] int[] ids)
+        {
+            var userId = _userService.GetUserId();
+            var accountTypes = await _accountTypeRepository.GetByUserId(userId);
+            var accountTypesIds = accountTypes.Select(x => x.Id);
+
+            var accountTypesOutOfTheUser = ids.Except(accountTypesIds).ToList();
+
+            if(accountTypesOutOfTheUser.Count > 0)
+            {
+                return Forbid();
+            }
+
+            var orderedAccountTypes = ids.Select((value, index) =>
+                                            new AccountType() { Id = value, AT_Order = index + 1 }).AsEnumerable();
+
+            await _accountTypeRepository.Order(orderedAccountTypes);
+
+            return Ok();
         }
     }
 }

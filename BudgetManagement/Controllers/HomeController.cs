@@ -20,7 +20,7 @@ namespace BudgetManagement.Controllers
         }
 
         //Get: NotFound
-        public IActionResult NotFound()
+        public IActionResult NotFoundView()
         {
             return View();
         }

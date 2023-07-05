@@ -2,6 +2,7 @@
 using BudgetManagement.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace BudgetManagement.Services
 {
@@ -22,11 +23,13 @@ namespace BudgetManagement.Services
         {
             using var connection = new SqlConnection(_connectionString);
             var id = await connection.QuerySingleAsync<int>(
-                                        @"INSERT INTO AccountType (AT_Name, UserId, AT_Order)
-                                          VALUES (@AT_Name, @UserId, 0);
-                                          SELECT SCOPE_IDENTITY()",
-                                        accountType
-                                       );
+                                        "SP_InsAccountTypeOrder",
+                                        new {
+                                            AT_Name = accountType.AT_Name,
+                                            UserId = accountType.UserId
+                                        },
+                                        commandType: CommandType.StoredProcedure
+                                      );
 
             accountType.Id = id;
         }
@@ -61,7 +64,8 @@ namespace BudgetManagement.Services
             return await connection.QueryAsync<AccountType>(
                                         @"SELECT Id, AT_Name, AT_Order
                                           FROM AccountType
-                                          WHERE UserId = @UserId",
+                                          WHERE UserId = @UserId
+                                          ORDER BY AT_Order",
                                         new { userId }
                                     );
         }
@@ -114,6 +118,19 @@ namespace BudgetManagement.Services
                                   WHERE Id = @Id",
                                 new { id }
                              );
+        }
+
+        /// <summary>
+        /// Method to save the order of each entry in DB for AccountType
+        /// </summary>
+        /// <param name="orderedAccountTypes">List of AccountType with data</param>
+        /// <returns></returns>
+        public async Task Order(IEnumerable<AccountType> orderedAccountTypes)
+        {
+            var query = "UPDATE AccountType SET AT_Order = @AT_Order WHERE Id = @Id";
+            using var connection = new SqlConnection(_connectionString);
+
+            await connection.ExecuteAsync(query, orderedAccountTypes);
         }
     }
 }

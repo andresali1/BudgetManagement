@@ -9,6 +9,7 @@ namespace BudgetManagement.Interfaces
         Task<bool> Exists(string at_name, int userId);
         Task<AccountType> GetById(int id, int userId);
         Task<IEnumerable<AccountType>> GetByUserId(int userId);
+        Task Order(IEnumerable<AccountType> orderedAccountTypes);
         Task Update(AccountType accountType);
     }
 }
