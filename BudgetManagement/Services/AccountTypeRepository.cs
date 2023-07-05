@@ -29,8 +29,6 @@ namespace BudgetManagement.Services
                                        );
 
             accountType.Id = id;
-
-
         }
 
         /// <summary>
@@ -52,6 +50,11 @@ namespace BudgetManagement.Services
             return exists == 1;
         }
 
+        /// <summary>
+        /// Method to get all AccountTypes by the user's Id
+        /// </summary>
+        /// <param name="userId">Id of the user</param>
+        /// <returns></returns>
         public async Task<IEnumerable<AccountType>> GetByUserId(int userId)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -61,6 +64,56 @@ namespace BudgetManagement.Services
                                           WHERE UserId = @UserId",
                                         new { userId }
                                     );
+        }
+
+        /// <summary>
+        /// Method to update an AccountType by its Id
+        /// </summary>
+        /// <param name="accountType">AccounType object with data</param>
+        /// <returns></returns>
+        public async Task Update(AccountType accountType)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.ExecuteAsync(
+                                @"UPDATE AccountType SET
+                                  AT_Name = @AT_Name
+                                  WHERE Id = @Id",
+                                accountType
+                             );
+
+        }
+
+        /// <summary>
+        /// Method to get an AccountType by its Id
+        /// </summary>
+        /// <param name="id">Id of the data</param>
+        /// <param name="userId">Id of the user</param>
+        /// <returns></returns>
+        public async Task<AccountType> GetById(int id, int userId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            return await connection.QueryFirstOrDefaultAsync<AccountType>(
+                                        @"SELECT Id, AT_Name, AT_Order
+                                          FROM AccountType
+                                          WHERE Id = @Id
+                                          AND UserId = @UserId",
+                                        new { id, userId }
+                                    );
+        }
+
+        /// <summary>
+        /// Method to delete an AccountType by its Id
+        /// </summary>
+        /// <param name="id">Id of the data</param>
+        /// <returns></returns>
+        public async Task Delete(int id)
+        {
+            using var connection = new SqlConnection( _connectionString);
+            await connection.ExecuteAsync(
+                                @"DELETE FROM AccountType
+                                  WHERE Id = @Id",
+                                new { id }
+                             );
         }
     }
 }

@@ -17,6 +17,7 @@ namespace BudgetManagement.Controllers
         }
 
         //Get: Index
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var userId = _userService.GetUserId();
@@ -26,6 +27,7 @@ namespace BudgetManagement.Controllers
         }
 
         //Get: Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -47,6 +49,78 @@ namespace BudgetManagement.Controllers
             accountType.UserId = _userService.GetUserId();
 
             await _accountTypeRepository.Create(accountType);
+
+            return RedirectToAction("Index");
+        }
+
+        //Get: Edit
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var userId = _userService.GetUserId();
+            var accountType = await _accountTypeRepository.GetById(id, userId);
+
+            if(accountType == null)
+            {
+                return RedirectToAction("NotFound", "Home");
+            }
+
+            return View(accountType);
+        }
+
+        /// <summary>
+        /// Method to edit an AccountType in Db
+        /// </summary>
+        /// <param name="accountType">AccountType object with data</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Edit(AccountType accountType)
+        {
+            var userId = _userService.GetUserId();
+            var accountTypeInDb = await _accountTypeRepository.GetById(accountType.Id, userId);
+
+            if(accountTypeInDb is null)
+            {
+                return RedirectToAction("NotFound", "Home");
+            }
+
+            await _accountTypeRepository.Update(accountType);
+
+            return RedirectToAction("Index");
+        }
+
+        //Get: Delete
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = _userService.GetUserId();
+            var accountType = await _accountTypeRepository.GetById(id, userId);
+
+            if (accountType is null)
+            {
+                return RedirectToAction("NotFound", "Home");
+            }
+
+            return View(accountType);
+        }
+
+        /// <summary>
+        /// Method to delete an AccountType from DB
+        /// </summary>
+        /// <param name="id">Id of the data</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> DeleteAccountType(int id)
+        {
+            var userId = _userService.GetUserId();
+            var accountType = await _accountTypeRepository.GetById(id, userId);
+
+            if (accountType is null)
+            {
+                return RedirectToAction("NotFound", "Home");
+            }
+
+            await _accountTypeRepository.Delete(id);
 
             return RedirectToAction("Index");
         }

@@ -13,11 +13,19 @@ namespace BudgetManagement.Controllers
             _logger = logger;
         }
 
+        //Get: Index
         public IActionResult Index()
         {
             return View();
         }
 
+        //Get: NotFound
+        public IActionResult NotFound()
+        {
+            return View();
+        }
+
+        //Get: Error
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

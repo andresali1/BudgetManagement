@@ -24,8 +24,8 @@
         {
             <tr>
                 <td>
-                    <a class="btn btn-primary">Editar</a>
-                    <a class="btn btn-danger">Borrar</a>
+                    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@accountType.Id">Editar</a>
+                    <a class="btn btn-danger" asp-action="Delete" asp-route-id="@accountType.Id">Borrar</a>
                 </td>
                 <td>
                     @accountType.AT_Name
