@@ -1,3 +1,6 @@
+USE BudgetManagement
+GO
+
 CREATE PROCEDURE SP_InsAccountTypeOrder
 	@AT_Name NVARCHAR(50),
 	@UserId INT
