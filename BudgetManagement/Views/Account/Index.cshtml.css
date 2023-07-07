@@ -1,0 +1,19 @@
+﻿.accordion_accounts button {
+    color: black !important;
+    font-size: 20px;
+}
+
+    .accordion_accounts button > span {
+        display: flex;
+        justify-content: space-evenly;
+        width: 100%;
+    }
+
+.accordion_accounts ul li {
+    display: flex;
+    justify-content: space-between;
+}
+
+.accordion_accounts .accordion-collapse {
+    font-size: 18px;
+}

@@ -63,7 +63,7 @@ namespace BudgetManagement.Controllers
 
             if(accountType == null)
             {
-                return RedirectToAction("NotFoundView", "Home");
+                return RedirectToAction("ViewNotFound", "Home");
             }
 
             return View(accountType);
@@ -82,7 +82,7 @@ namespace BudgetManagement.Controllers
 
             if(accountTypeInDb is null)
             {
-                return RedirectToAction("NotFoundView", "Home");
+                return RedirectToAction("ViewNotFound", "Home");
             }
 
             await _accountTypeRepository.Update(accountType);
@@ -99,7 +99,7 @@ namespace BudgetManagement.Controllers
 
             if (accountType is null)
             {
-                return RedirectToAction("NotFoundView", "Home");
+                return RedirectToAction("ViewNotFound", "Home");
             }
 
             return View(accountType);
@@ -118,7 +118,7 @@ namespace BudgetManagement.Controllers
 
             if (accountType is null)
             {
-                return RedirectToAction("NotFoundView", "Home");
+                return RedirectToAction("ViewNotFound", "Home");
             }
 
             await _accountTypeRepository.Delete(id);

@@ -1,6 +1,5 @@
 ﻿using BudgetManagement.Validations;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace BudgetManagement.Models
@@ -14,7 +13,9 @@ namespace BudgetManagement.Models
         [FirstCapitalLetter]
         [Remote(action: "AccountTypeExistsValidation", controller: "AccountType")]
         public string AT_Name { get; set; }
+
         public int UserId { get; set; }
+
         public int AT_Order { get; set; }
 
         //public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
