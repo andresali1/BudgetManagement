@@ -8,6 +8,7 @@ namespace BudgetManagement.Services
         public AutoMapperProfile()
         {
             CreateMap<Account, AccountCreationViewModel>();
+            CreateMap<Category, CategoryCreationViewModel>();
         }
     }
 }

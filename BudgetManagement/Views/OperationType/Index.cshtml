@@ -1,0 +1,36 @@
+﻿@model IEnumerable<OperationType>
+
+@{
+    ViewData["Title"] = "Listado de Tipos Operación";
+}
+
+<h1>Tipos de Operación</h1>
+<h5>
+    El tipo de operacion se refiere a la naturaleza de la transacción.
+    Ejemplos: Ingresos, Gastos, etc.
+</h5>
+
+<a asp-action="Create" class="btn btn-primary mb-3">Crear Nuevo</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Acciones</th>
+            <th>Nombre</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var operationType in Model)
+        {
+            <tr>
+                <td>
+                    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@operationType.Id">Editar</a>
+                    <a class="btn btn-danger" asp-action="Delete" asp-route-id="@operationType.Id">Borrar</a>
+                </td>
+                <td>
+                    @operationType.T_Description
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

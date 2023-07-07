@@ -14,17 +14,20 @@ namespace BudgetManagement.Controllers
         }
 
         //Get: Index
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
+        [HttpGet]
         //Get: NotFound
         public IActionResult ViewNotFound()
         {
             return View();
         }
 
+        [HttpGet]
         //Get: Error
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

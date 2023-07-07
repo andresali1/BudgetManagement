@@ -1,0 +1,25 @@
+﻿@model OperationType
+
+@{
+    ViewData["Title"] = "Editar Tipo Operación";
+}
+
+<h1>Editar Tipo de Operación: @Model.T_Description</h1>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label asp-for="T_Description" class="form-label"></label>
+        <input type="text" asp-for="T_Description" class="form-control" />
+        <span asp-validation-for="T_Description" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enviar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+}

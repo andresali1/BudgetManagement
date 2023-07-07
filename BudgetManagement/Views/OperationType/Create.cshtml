@@ -1,0 +1,28 @@
+﻿@model OperationType
+
+@{
+    ViewData["Title"] = "Crear Tipo Operación";
+}
+
+<h1>Crear Tipo de Operación</h1>
+<h5>
+    El tipo de operacion se refiere a la naturaleza de la transacción.
+    Ejemplos: Ingresos, Gastos, etc.
+</h5>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form asp-action="Create">
+    <div class="mb-3">
+        <label asp-for="T_Description" class="form-label"></label>
+        <input type="text" asp-for="T_Description" class="form-control"/>
+        <span asp-validation-for="T_Description" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enviar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+}
