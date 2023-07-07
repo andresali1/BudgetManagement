@@ -24,6 +24,16 @@ namespace BudgetManagement.Controllers
             _mapper = mapper;
         }
 
+        //Get: Index
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var userId = _userService.GetUserId();
+            var categories = await _categoryRepository.GetByUserId(userId);
+
+            return View(categories);
+        }
+
         //Get: Create
         [HttpGet]
         public async Task<IActionResult> Create()
@@ -58,9 +68,89 @@ namespace BudgetManagement.Controllers
             var userId = _userService.GetUserId();
             categoryVM.UserId = userId;
 
-            var category = _mapper.Map<Category>(categoryVM);
+            await _categoryRepository.Create(categoryVM);
 
-            await _categoryRepository.Create(category);
+            return RedirectToAction("Index");
+        }
+
+        //Get: Edit
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var userId = _userService.GetUserId();
+            var category = await _categoryRepository.GetById(id, userId);
+
+            if(category is null)
+            {
+                return RedirectToAction("ViewNotFound", "Home");
+            }
+
+            var model = _mapper.Map<CategoryCreationViewModel>(category);
+            model.OperationTypes = await GetOperationTypes();
+
+            return View(model);
+        }
+
+        /// <summary>
+        /// Method to edit a Category in Database
+        /// </summary>
+        /// <param name="categoryVM">CategoryCreationViewModel object with data</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Edit(CategoryCreationViewModel categoryVM)
+        {
+            if (!ModelState.IsValid)
+            {
+                categoryVM.OperationTypes = await GetOperationTypes();
+                return View(categoryVM);
+            }
+
+            var userId = _userService.GetUserId();
+            var category = await _categoryRepository.GetById(categoryVM.Id, userId);
+
+            if (category is null)
+            {
+                return RedirectToAction("ViewNotFound", "Home");
+            }
+
+            categoryVM.UserId = userId;
+
+            await _categoryRepository.Update(categoryVM);
+            return RedirectToAction("Index");
+        }
+
+        //Get: Delete
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = _userService.GetUserId();
+            var category = await _categoryRepository.GetById(id, userId);
+
+            if (category is null)
+            {
+                return RedirectToAction("ViewNotFound", "Home");
+            }
+
+            return View(category);
+        }
+
+        /// <summary>
+        /// Method to delete a Category from Database
+        /// </summary>
+        /// <param name="id">Id of the data</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            var userId = _userService.GetUserId();
+            var category = await _categoryRepository.GetById(id, userId);
+
+            if (category is null)
+            {
+                return RedirectToAction("ViewNotFound", "Home");
+            }
+
+            await _categoryRepository.Delete(id);
 
             return RedirectToAction("Index");
         }

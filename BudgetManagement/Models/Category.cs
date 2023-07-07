@@ -15,5 +15,7 @@ namespace BudgetManagement.Models
         public int OperationTypeId { get; set; }
 
         public int UserId { get; set; }
+
+        public string T_Description { get; set; }
     }
 }
