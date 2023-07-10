@@ -12,15 +12,17 @@ namespace BudgetManagement.Controllers
         private readonly IUserService _userService;
         private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
+        private readonly IDealRepository _dealRepository;
 
         public AccountController(IAccountTypeRepository accountTypeRepository,
                                  IUserService userService, IAccountRepository accountRepository,
-                                 IMapper mapper)
+                                 IMapper mapper, IDealRepository dealRepository)
         {
             _accountTypeRepository = accountTypeRepository;
             _userService = userService;
             _accountRepository = accountRepository;
             _mapper = mapper;
+            _dealRepository = dealRepository;
         }
 
         //Get: Index
@@ -37,6 +39,64 @@ namespace BudgetManagement.Controllers
                                 AccountType = group.Key,
                                 Accounts = group.AsEnumerable()
                             }).ToList();
+
+            return View(model);
+        }
+
+        //Get: Detail
+        [HttpGet]
+        public async Task<IActionResult> Detail(int id, int month, int year)
+        {
+            var userId = _userService.GetUserId();
+            var account = await _accountRepository.GetById(id, userId);
+
+            if (account is null)
+            {
+                return RedirectToAction("ViewNotFound", "Home");
+            }
+
+            DateTime beginDate, endDate;
+
+            if(month <= 0 || month > 12 || year <= 1900)
+            {
+                var today = DateTime.Today;
+                beginDate = new DateTime(today.Year, today.Month, 1);
+            } else
+            {
+                beginDate = new DateTime(year, month, 1);
+            }
+
+            endDate = beginDate.AddMonths(1).AddDays(-1);
+
+            var getDealsByAccount = new GetDealByAccount()
+            {
+                AccountId = id,
+                UserId = userId,
+                BeginDate = beginDate,
+                EndDate = endDate
+            };
+
+            var deals = await _dealRepository.GetByAccountId(getDealsByAccount);
+
+            var model = new DetailDealReport();
+            ViewBag.Account = account.A_Name;
+
+            var dealsByDate = deals.OrderByDescending(x => x.DealDate)
+                                   .GroupBy(x => x.DealDate)
+                                   .Select(group => new DetailDealReport.DealByDate()
+                                   {
+                                       DealDate = group.Key,
+                                       Deals = group.AsEnumerable()
+                                   });
+
+            model.GroupedDeals = dealsByDate;
+            model.BeginDate = beginDate;
+            model.EndDate = endDate;
+
+            ViewBag.PreviousMonth = beginDate.AddMonths(-1).Month;
+            ViewBag.PreviousYear = beginDate.AddMonths(-1).Year;
+            ViewBag.NextMonth = beginDate.AddMonths(1).Month;
+            ViewBag.NextYear = beginDate.AddMonths(1).Year;
 
             return View(model);
         }

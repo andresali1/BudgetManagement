@@ -29,11 +29,13 @@ namespace BudgetManagement.Models
 
         [Display(Name = "Nota")]
         [StringLength(maximumLength: 1000, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
         public string Note { get; set; }
 
         [Display(Name = "Tipo Operación")]
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public int OperationTypeId { get; set; }
+
+        public string Category { get; set; }
+        public string Account { get; set; }
     }
 }

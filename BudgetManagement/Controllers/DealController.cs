@@ -3,7 +3,6 @@ using BudgetManagement.Interfaces;
 using BudgetManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Reflection;
 
 namespace BudgetManagement.Controllers
 {
@@ -106,7 +105,7 @@ namespace BudgetManagement.Controllers
 
         //Get: Edit
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, string returnUrl = null)
         {
             var userId = _userService.GetUserId();
             var deal = await _dealRepository.GetById(id, userId);
@@ -129,6 +128,7 @@ namespace BudgetManagement.Controllers
             model.Categories = await GetCategoriesByOperationType(userId, deal.OperationTypeId);
             model.Accounts = await GetAccounts(userId);
             model.OperationTypes = await GetOperationTypes();
+            model.ReturnUrl = returnUrl;
 
             return View(model);
         }
@@ -182,7 +182,14 @@ namespace BudgetManagement.Controllers
 
             await _dealRepository.Update(deal, dealVM.PreviousPrice, dealVM.PreviousAccountId);
 
-            return RedirectToAction("Index");
+            if (string.IsNullOrEmpty(dealVM.ReturnUrl))
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return LocalRedirect(dealVM.ReturnUrl);
+            }
         }
 
         /// <summary>
