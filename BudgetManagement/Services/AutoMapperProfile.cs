@@ -9,6 +9,7 @@ namespace BudgetManagement.Services
         {
             CreateMap<Account, AccountCreationViewModel>();
             CreateMap<Category, CategoryCreationViewModel>();
+            CreateMap<DealUpdateViewModel, Deal>().ReverseMap();
         }
     }
 }

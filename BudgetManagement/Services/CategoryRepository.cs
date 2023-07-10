@@ -50,6 +50,25 @@ namespace BudgetManagement.Services
         }
 
         /// <summary>
+        /// Method to get all the categories by Operation Type
+        /// </summary>
+        /// <param name="userId">Id of the user</param>
+        /// <param name="operationTypeId">Id of the operation type</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Category>> GetByOperationType(int userId, int operationTypeId)
+        {
+            using var connection = new SqlConnection( _connectionString);
+            return await connection.QueryAsync<Category>(
+                                        @"SELECT C.Id, C_Name, OperationTypeId, T_Description, UserId
+                                          FROM Category C
+                                          INNER JOIN OperationType OT ON OT.Id = C.OperationTypeId
+                                          WHERE UserId = @UserId
+                                          AND OperationTypeId = @OperationTypeId",
+                                        new { userId, operationTypeId }
+                                    );
+        }
+
+        /// <summary>
         /// Method to get a Category by its Id
         /// </summary>
         /// <param name="id">Id of the data</param>
