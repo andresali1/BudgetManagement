@@ -151,6 +151,27 @@ namespace BudgetManagement.Services
         }
 
         /// <summary>
+        /// Method to get the report of all Deals By Month
+        /// </summary>
+        /// <param name="userId">Id of the user</param>
+        /// <param name="year">Given year</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<MonthlyGetResult>> GetByMonth(int userId, int year)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            return await connection.QueryAsync<MonthlyGetResult>(
+                                        @"SELECT MONTH(D.DealDate)[Month], SUM(D.Price)[Price],
+                                          	     C.OperationTypeId
+                                          FROM Deal D
+                                          INNER JOIN Category C ON C.Id = D.CategoryId
+                                          WHERE D.UserId = @UserId
+                                          AND YEAR(D.DealDate) = @Year
+                                          GROUP BY MONTH(D.DealDate), C.OperationTypeId",
+                                        new { userId, year }
+                                    );
+        }
+
+        /// <summary>
         /// Method to eliminate a Deal from Database
         /// </summary>
         /// <param name="id">Id of the deal</param>

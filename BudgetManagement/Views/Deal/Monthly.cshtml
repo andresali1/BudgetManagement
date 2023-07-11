@@ -1,5 +1,52 @@
-﻿@{
+﻿@model MonthlyReportViewModel
+
+@{
     ViewData["Title"] = "Reporte Mensual";
+    int previousYear = Model.Year - 1;
+    int nextYear = Model.Year + 1;
+    var priceSummary = new PriceSummaryViewModel()
+    {
+        Expense = Model.Expense,
+        Income = Model.Income,
+        Total = Model.Total
+    };
 }
 
 <partial name="_SubMenu" model="DealSubMenu.Monthly" />
+
+<h4>
+    Mostrando transacciones de
+    <a asp-route-year="@previousYear" class="btn btn-secondary">
+        <i class="bi-chevron-left"></i>
+    </a>
+    @Model.Year
+    <a asp-route-year="@nextYear" class="btn btn-secondary">
+        <i class="bi-chevron-right"></i>
+    </a>
+</h4>
+
+<partial name="_PriceSummary" model="@priceSummary" />
+
+<table class="table" style="font-size: 20px;">
+    <thead>
+        <tr style="background-color: lightblue">
+            <th>Mes</th>
+            <th style="text-align: right;">Ingresos</th>
+            <th style="text-align: right;">Gastos</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var dealByMonth in Model.DealsByMonth)
+        {
+            <tr>
+                <td>
+                    <a style="text-decoration: none;" asp-action="Index" asp-route-year="@Model.Year" asp-route-month="@dealByMonth.Month">
+                        @dealByMonth.ReferenceDate.ToString("MMM")
+                    </a>
+                </td>
+                <td class="active_element" style="text-align: right;">@dealByMonth.Income</td>
+                <td class="passive_element" style="text-align: right;">@dealByMonth.Expense</td>
+            </tr>
+        }
+    </tbody>
+</table>

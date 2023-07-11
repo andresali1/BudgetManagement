@@ -107,9 +107,50 @@ namespace BudgetManagement.Controllers
 
         //Get: Monthly
         [HttpGet]
-        public IActionResult Monthly()
+        public async Task<IActionResult> Monthly(int year)
         {
-            return View();
+            var userId = _userService.GetUserId();
+
+            if(year == 0)
+            {
+                year = DateTime.Now.Year;
+            }
+
+            var dealsByMonth = await _dealRepository.GetByMonth(userId, year);
+            var groupedDeals = dealsByMonth.GroupBy(x => x.Month)
+                                           .Select(x => new MonthlyGetResult()
+                                           {
+                                               Month = x.Key,
+                                               Income = x.Where(x => x.OperationTypeId == (int)OperationTypeEnum.Ingreso).Select(x => x.Price).FirstOrDefault(),
+                                               Expense = x.Where(x => x.OperationTypeId == (int)OperationTypeEnum.Gasto).Select(x => x.Price).FirstOrDefault()
+                                           }).ToList();
+
+            for(int month = 1; month <= 12; month++)
+            {
+                var deal = groupedDeals.FirstOrDefault(x => x.Month == month);
+                var referenceDate = new DateTime(year, month, 1);
+
+                if(deal is null)
+                {
+                    groupedDeals.Add(new MonthlyGetResult()
+                    {
+                        Month = month,
+                        ReferenceDate = referenceDate
+                    });
+                }
+                else
+                {
+                    deal.ReferenceDate = referenceDate;
+                }
+            }
+
+            groupedDeals = groupedDeals.OrderByDescending(x => x.Month).ToList();
+
+            var model = new MonthlyReportViewModel();
+            model.Year = year;
+            model.DealsByMonth = groupedDeals;
+
+            return View(model);
         }
 
         //Get: ExcelReport
