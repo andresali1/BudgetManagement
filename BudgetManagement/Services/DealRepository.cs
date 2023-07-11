@@ -62,6 +62,27 @@ namespace BudgetManagement.Services
         }
 
         /// <summary>
+        /// Method to get all the transactions by Id User
+        /// </summary>
+        /// <param name="model">TransactionByUserParameter object with data</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Deal>> GetByUserId(TransactionByUserParameter model)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            return await connection.QueryAsync<Deal>(
+                                        @"SELECT D.Id, D.Price, D.DealDate, C.C_Name[Category],
+                                          	     A.A_Name[Account], C.OperationTypeId
+                                          FROM Deal D
+                                          INNER JOIN Category C ON C.Id = D.CategoryId
+                                          INNER JOIN Account A ON A.Id = D.AccountId
+                                          WHERE D.UserId = @UserId
+                                          AND DealDate BETWEEN @BeginDate AND @EndDate
+                                          ORDER BY D.DealDate DESC",
+                                        model
+                                    );
+        }
+
+        /// <summary>
         /// Method to Update a Deal in Database
         /// </summary>
         /// <param name="deal">Deal object with given data</param>

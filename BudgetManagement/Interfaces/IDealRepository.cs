@@ -8,6 +8,7 @@ namespace BudgetManagement.Interfaces
         Task Delete(int id);
         Task<IEnumerable<Deal>> GetByAccountId(GetDealByAccount model);
         Task<Deal> GetById(int id, int userId);
+        Task<IEnumerable<Deal>> GetByUserId(TransactionByUserParameter model);
         Task Update(Deal deal, int previousPrice, int previousAccountId);
     }
 }

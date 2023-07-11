@@ -14,6 +14,7 @@ namespace BudgetManagement.Controllers
         private readonly IOperationTypeRepository _operationTypeRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
+        private readonly IReportService _reportService;
 
         public DealController(
             IDealRepository dealRepository,
@@ -21,7 +22,8 @@ namespace BudgetManagement.Controllers
             IAccountRepository accountRepository,
             IOperationTypeRepository operationTypeRepository,
             ICategoryRepository categoryRepository,
-            IMapper mapper
+            IMapper mapper,
+            IReportService reportService
         )
         {
             _dealRepository = dealRepository;
@@ -30,11 +32,44 @@ namespace BudgetManagement.Controllers
             _operationTypeRepository = operationTypeRepository;
             _categoryRepository = categoryRepository;
             _mapper = mapper;
+            _reportService = reportService;
         }
 
         //Get: Index
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index(int month, int year)
+        {
+            var userId = _userService.GetUserId();
+
+            var model = await _reportService.GetDeateiledDealReport(userId, month, year, ViewBag);
+
+            return View(model);
+        }
+
+        //Get: Weekly
+        [HttpGet]
+        public IActionResult Weekly()
+        {
+            return View();
+        }
+
+        //Get: Monthly
+        [HttpGet]
+        public IActionResult Monthly()
+        {
+            return View();
+        }
+
+        //Get: ExcelReport
+        [HttpGet]
+        public IActionResult ExcelReport()
+        {
+            return View();
+        }
+
+        //Get: Calendar
+        [HttpGet]
+        public IActionResult Calendar()
         {
             return View();
         }
@@ -198,7 +233,7 @@ namespace BudgetManagement.Controllers
         /// <param name="id">Id of the Deal</param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, string returnUrl = null)
         {
             var userId = _userService.GetUserId();
             var deal = await _dealRepository.GetById(id, userId);
@@ -210,7 +245,14 @@ namespace BudgetManagement.Controllers
 
             await _dealRepository.Delete(id);
 
-            return RedirectToAction("Index");
+            if (string.IsNullOrEmpty(returnUrl))
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return LocalRedirect(returnUrl);
+            }
         }
 
         /// <summary>

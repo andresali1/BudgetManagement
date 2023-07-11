@@ -1,0 +1,83 @@
+﻿@model DetailDealReport
+
+<h4>
+    <a asp-route-month="@ViewBag.PreviousMonth" asp-route-year="@ViewBag.PreviousYear"
+       class="btn btn-secondary">
+        <i class="bi-chevron-left"></i>
+    </a>
+    @Model.BeginDate.ToString("MMM")-@Model.BeginDate.Year
+    <a asp-route-month="@ViewBag.NextMonth" asp-route-year="@ViewBag.NextYear"
+       class="btn btn-secondary">
+        <i class="bi-chevron-right"></i>
+    </a>
+</h4>
+
+<div class="totals-container mb-3">
+    <div>
+        <div>
+            <strong>Depósitos</strong>
+        </div>
+        <div class="active_element">
+            @Model.DepositBalance.ToString("N0")
+        </div>
+    </div>
+    <div>
+        <div>
+            <strong>Retiros</strong>
+        </div>
+        <div class="passive_element">
+            @Model.WithdrawBalance.ToString("N0")
+        </div>
+    </div>
+    <div>
+        <div>
+            <strong>Total</strong>
+        </div>
+        <div>
+            @Model.Total.ToString("N0")
+        </div>
+    </div>
+</div>
+
+@if (Model.GroupedDeals.Count() == 0)
+{
+    <h5>No hay datos para mostrar</h5>
+}
+else
+{
+    <table class="table">
+        <tbody>
+            @foreach (var groupedDeal in Model.GroupedDeals)
+            {
+                <tr style="background-color: lightblue; font-size: 26px;">
+                    <td colspan="3">
+                        @groupedDeal.DealDate.Day
+                        <span class="badge bg-secondary">
+                            @groupedDeal.DealDate.ToString("ddd")
+                        </span>
+                    </td>
+                    <td class="active_element">@groupedDeal.DepositBalance.ToString("N0")</td>
+                    <td class="passive_element">@groupedDeal.WithdrawBalance.ToString("N0")</td>
+                </tr>
+                @foreach (var deal in groupedDeal.Deals)
+                {
+                    <tr style="vertical-align: middle;">
+                        <td>
+                            <a asp-controller="Deal" asp-action="Edit" asp-route-id="@deal.Id" asp-route-returnUrl="@ViewBag.ReturnUrl">
+                                <i class="bi-pencil"></i>
+                            </a>
+                        </td>
+                        <td>@deal.Category</td>
+                        <td>@deal.Account</td>
+                        <td class="active_element">
+                            @(deal.OperationTypeId == (int)OperationTypeEnum.Ingreso ? deal.Price.ToString("N0") : null)
+                        </td>
+                        <td class="passive_element">
+                            @(deal.OperationTypeId == (int)OperationTypeEnum.Gasto ? deal.Price.ToString("N0") : null)
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
