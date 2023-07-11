@@ -1,43 +1,17 @@
 ﻿@model DetailDealReport
 
-<h4>
-    <a asp-route-month="@ViewBag.PreviousMonth" asp-route-year="@ViewBag.PreviousYear"
-       class="btn btn-secondary">
-        <i class="bi-chevron-left"></i>
-    </a>
-    @Model.BeginDate.ToString("MMM")-@Model.BeginDate.Year
-    <a asp-route-month="@ViewBag.NextMonth" asp-route-year="@ViewBag.NextYear"
-       class="btn btn-secondary">
-        <i class="bi-chevron-right"></i>
-    </a>
-</h4>
+@{
+    var priceSummary = new PriceSummaryViewModel()
+    {
+        Income = Model.DepositBalance,
+        Expense = Model.WithdrawBalance,
+        Total = Model.Total
+    };
+}
 
-<div class="totals-container mb-3">
-    <div>
-        <div>
-            <strong>Depósitos</strong>
-        </div>
-        <div class="active_element">
-            @Model.DepositBalance.ToString("N0")
-        </div>
-    </div>
-    <div>
-        <div>
-            <strong>Retiros</strong>
-        </div>
-        <div class="passive_element">
-            @Model.WithdrawBalance.ToString("N0")
-        </div>
-    </div>
-    <div>
-        <div>
-            <strong>Total</strong>
-        </div>
-        <div>
-            @Model.Total.ToString("N0")
-        </div>
-    </div>
-</div>
+<partial name="_BrowseByMonths" model="@Model.BeginDate" />
+
+<partial name="_PriceSummary" model="@priceSummary" />
 
 @if (Model.GroupedDeals.Count() == 0)
 {

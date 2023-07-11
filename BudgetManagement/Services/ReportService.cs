@@ -15,6 +15,58 @@ namespace BudgetManagement.Services
         }
 
         /// <summary>
+        /// Method to get all the deals made by week in a month
+        /// </summary>
+        /// <param name="userId">Id of the user</param>
+        /// <param name="month">Given month</param>
+        /// <param name="year">Given year</param>
+        /// <param name="ViewBag">The ViewBag</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<WeeklyGetResult>> GetWeeklyReport(int userId, int month, int year, dynamic ViewBag)
+        {
+            (DateTime beginDate, DateTime endDate) = GenerateBeginAndEndDate(month, year);
+
+            var parameter = new DealByUserParameter()
+            {
+                UserId = userId,
+                BeginDate = beginDate,
+                EndDate = endDate
+            };
+
+            AssignValuesToViewBag(ViewBag, beginDate);
+
+            var model = await _dealRepository.GetByWeek(parameter);
+
+            return model;
+        }
+
+        /// <summary>
+        /// Method to generate a Detailed deal report by user Id
+        /// </summary>
+        /// <param name="userId">Id of the user</param>
+        /// <param name="month">Given month</param>
+        /// <param name="year">Given year</param>
+        /// <param name="ViewBag">The ViewBag</param>
+        /// <returns></returns>
+        public async Task<DetailDealReport> GetDeateiledDealReport(int userId, int month, int year, dynamic ViewBag)
+        {
+            (DateTime beginDate, DateTime endDate) = GenerateBeginAndEndDate(month, year);
+
+            var parameter = new DealByUserParameter()
+            {
+                UserId = userId,
+                BeginDate = beginDate,
+                EndDate = endDate
+            };
+
+            var deals = await _dealRepository.GetByUserId(parameter);
+            var model = DetailedDealReportGeneration(beginDate, endDate, deals);
+            AssignValuesToViewBag(ViewBag, beginDate);
+
+            return model;
+        }
+
+        /// <summary>
         /// Method to get the deal report by account id
         /// </summary>
         /// <param name="userId">Id of the User</param>
@@ -36,32 +88,6 @@ namespace BudgetManagement.Services
             };
 
             var deals = await _dealRepository.GetByAccountId(getDealsByAccount);
-            var model = DetailedDealReportGeneration(beginDate, endDate, deals);
-            AssignValuesToViewBag(ViewBag, beginDate);
-
-            return model;
-        }
-
-        /// <summary>
-        /// Method to generate a Detailed deal report by user Id
-        /// </summary>
-        /// <param name="userId">Id of the user</param>
-        /// <param name="month">Given month</param>
-        /// <param name="year">Given year</param>
-        /// <param name="ViewBag">The ViewBag</param>
-        /// <returns></returns>
-        public async Task<DetailDealReport> GetDeateiledDealReport(int userId, int month, int year, dynamic ViewBag)
-        {
-            (DateTime beginDate, DateTime endDate) = GenerateBeginAndEndDate(month, year);
-
-            var parameter = new TransactionByUserParameter()
-            {
-                UserId = userId,
-                BeginDate = beginDate,
-                EndDate = endDate
-            };
-
-            var deals = await _dealRepository.GetByUserId(parameter);
             var model = DetailedDealReportGeneration(beginDate, endDate, deals);
             AssignValuesToViewBag(ViewBag, beginDate);
 

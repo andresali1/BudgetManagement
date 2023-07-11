@@ -64,9 +64,9 @@ namespace BudgetManagement.Services
         /// <summary>
         /// Method to get all the transactions by Id User
         /// </summary>
-        /// <param name="model">TransactionByUserParameter object with data</param>
+        /// <param name="model">DealByUserParameter object with data</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Deal>> GetByUserId(TransactionByUserParameter model)
+        public async Task<IEnumerable<Deal>> GetByUserId(DealByUserParameter model)
         {
             using var connection = new SqlConnection(_connectionString);
             return await connection.QueryAsync<Deal>(
@@ -126,6 +126,27 @@ namespace BudgetManagement.Services
                                           WHERE D.Id = @Id
                                           AND D.UserId = @UserId",
                                         new { id, userId }
+                                    );
+        }
+
+        /// <summary>
+        /// Method to get the report of all Deals By Week
+        /// </summary>
+        /// <param name="model">DealByUserParameter with given data</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<WeeklyGetResult>> GetByWeek(DealByUserParameter model)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            return await connection.QueryAsync<WeeklyGetResult>(
+                                        @"SELECT DATEDIFF(d, @BeginDate, DealDate) / 7 + 1[Week],
+                                          	     SUM(Price)[Price], C.OperationTypeId
+                                          FROM Deal D
+                                          INNER JOIN Category C ON C.Id = D.CategoryId
+                                          WHERE D.UserId = @UserId
+                                          AND DealDate BETWEEN @BeginDate AND @EndDate
+                                          GROUP BY DATEDIFF(d, @BeginDate, DealDate) / 7,
+                                          		   C.OperationTypeId",
+                                        model
                                     );
         }
 

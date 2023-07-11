@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Identity;
 using BudgetManagement.Interfaces;
 using BudgetManagement.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -48,9 +49,60 @@ namespace BudgetManagement.Controllers
 
         //Get: Weekly
         [HttpGet]
-        public IActionResult Weekly()
+        public async Task<IActionResult> Weekly(int month, int year)
         {
-            return View();
+            var userId = _userService.GetUserId();
+            IEnumerable<WeeklyGetResult> dealsByWeek = await _reportService.GetWeeklyReport(userId, month, year, ViewBag);
+
+            var grouped = dealsByWeek.GroupBy(x => x.Week)
+                                     .Select(x => new WeeklyGetResult()
+                                     {
+                                         Week = x.Key,
+                                         Income = x.Where(x => x.OperationTypeId == (int)OperationTypeEnum.Ingreso).Select(x => x.Price).FirstOrDefault(),
+                                         Expense = x.Where(x => x.OperationTypeId == (int)OperationTypeEnum.Gasto).Select(x => x.Price).FirstOrDefault()
+                                     }).ToList();
+
+            if(year == 0 || month == 0)
+            {
+                var today = DateTime.Today;
+                year = today.Year;
+                month = today.Month;
+            }
+
+            var referenceDate = new DateTime(year, month, 1);
+            var monthDays = Enumerable.Range(1, referenceDate.AddMonths(1).AddDays(-1).Day);
+            var segmentedDays = monthDays.Chunk(7).ToList();
+
+            for(int i = 0; i < segmentedDays.Count(); i++)
+            {
+                var week = i + 1;
+                var beginDate = new DateTime(year, month, segmentedDays[i].First());
+                var endDate = new DateTime(year, month, segmentedDays[i].Last());
+                var weekGroup = grouped.FirstOrDefault(x => x.Week == week);
+
+                if(weekGroup is null)
+                {
+                    grouped.Add(new WeeklyGetResult()
+                    {
+                        Week = week,
+                        BeginDate = beginDate,
+                        EndDate = endDate
+                    });
+                }
+                else
+                {
+                    weekGroup.BeginDate = beginDate;
+                    weekGroup.EndDate = endDate;
+                }
+            }
+
+            grouped.OrderByDescending(x => x.Week).ToList();
+
+            var model = new WeeklyReportViewModel();
+            model.DealsByWeek = grouped;
+            model.ReferenceDate = referenceDate;
+
+            return View(model);
         }
 
         //Get: Monthly

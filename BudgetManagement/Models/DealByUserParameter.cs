@@ -1,6 +1,6 @@
 ﻿namespace BudgetManagement.Models
 {
-    public class TransactionByUserParameter
+    public class DealByUserParameter
     {
         public int UserId { get; set; }
         public DateTime BeginDate { get; set; }

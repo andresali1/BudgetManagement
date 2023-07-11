@@ -1,0 +1,28 @@
+﻿@model PriceSummaryViewModel
+
+<div class="totals-container mb-3">
+    <div>
+        <div>
+            <strong>Depósitos</strong>
+        </div>
+        <div class="active_element">
+            @Model.Income.ToString("N0")
+        </div>
+    </div>
+    <div>
+        <div>
+            <strong>Retiros</strong>
+        </div>
+        <div class="passive_element">
+            @Model.Expense.ToString("N0")
+        </div>
+    </div>
+    <div>
+        <div>
+            <strong>Total</strong>
+        </div>
+        <div>
+            @Model.Total.ToString("N0")
+        </div>
+    </div>
+</div>
