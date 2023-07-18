@@ -2,8 +2,11 @@
 using Azure.Identity;
 using BudgetManagement.Interfaces;
 using BudgetManagement.Models;
+using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Data;
 
 namespace BudgetManagement.Controllers
 {
@@ -158,6 +161,112 @@ namespace BudgetManagement.Controllers
         public IActionResult ExcelReport()
         {
             return View();
+        }
+
+        /// <summary>
+        /// Method to generate an Excel file of a month
+        /// </summary>
+        /// <param name="month">Given month</param>
+        /// <param name="year">Given year</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<FileResult> ExportExcelByMonth(int month, int year)
+        {
+            var beginDate = new DateTime(year, month, 1);
+            var endDate = beginDate.AddMonths(1).AddDays(-1);
+            var userId = _userService.GetUserId();
+
+            var deals = await _dealRepository.GetByUserId(new DealByUserParameter()
+            {
+                UserId = userId,
+                BeginDate = beginDate,
+                EndDate = endDate
+            });
+
+            var fileName = $"Manejo_Presupuesto-{beginDate.ToString("MMM yyyy")}.xlsx";
+            return GenerateExcel(fileName, deals);
+        }
+
+        /// <summary>
+        /// Method to generate an Excel file of a year
+        /// </summary>
+        /// <param name="year">Given year</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<FileResult> ExportExcelByYear(int year)
+        {
+            var beginDate = new DateTime(year, 1, 1);
+            var endDate = beginDate.AddYears(1).AddDays(-1);
+            var userId = _userService.GetUserId();
+
+            var deals = await _dealRepository.GetByUserId(new DealByUserParameter()
+            {
+                UserId = userId,
+                BeginDate = beginDate,
+                EndDate = endDate
+            });
+
+            var fileName = $"Manejo_Presupuesto-{beginDate.ToString("yyyy")}.xlsx";
+            return GenerateExcel(fileName, deals);
+        }
+
+        /// <summary>
+        /// Method to generate an Excel file with all the data
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<FileResult> ExportExcelAll()
+        {
+            var beginDate = DateTime.Today.AddYears(-100);
+            var endDate = DateTime.Today.AddYears(100);
+            var userId = _userService.GetUserId();
+
+            var deals = await _dealRepository.GetByUserId(new DealByUserParameter()
+            {
+                UserId = userId,
+                BeginDate = beginDate,
+                EndDate = endDate
+            });
+
+            var fileName = $"Manejo_Presupuesto-{DateTime.Today.ToString("dd-MM-yyyy")}.xlsx";
+            return GenerateExcel(fileName, deals);
+        }
+
+        /// <summary>
+        /// Method to generate an Excel File
+        /// </summary>
+        /// <param name="fileName">Name for the file</param>
+        /// <param name="deals">IEnumerable with the collection of data</param>
+        /// <returns></returns>
+        private FileResult GenerateExcel(string fileName, IEnumerable<Deal> deals)
+        {
+            DataTable dt = new DataTable("Deals");
+            dt.Columns.AddRange(new DataColumn[]
+            {
+                new DataColumn("Fecha"),
+                new DataColumn("Cuenta"),
+                new DataColumn("Categoría"),
+                new DataColumn("Nota"),
+                new DataColumn("Monto"),
+                new DataColumn("Ingreso/Gasto")
+            });
+
+            foreach(var deal in deals)
+            {
+                string operationType = ((OperationTypeEnum)deal.OperationTypeId).ToString();
+                dt.Rows.Add(deal.DealDate, deal.Account, deal.Category, deal.Note, deal.Price, operationType);
+            }
+
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.Worksheets.Add(dt);
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    wb.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
         }
 
         //Get: Calendar

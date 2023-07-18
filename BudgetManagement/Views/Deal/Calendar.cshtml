@@ -3,3 +3,34 @@
 }
 
 <partial name="_SubMenu" model="DealSubMenu.Calendar" />
+
+<div id="calendar"></div>
+
+@section Scripts{
+    <script src="~/lib/fullcalendar/main.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                dayMaxEventRows: 3,
+                initialView: 'dayGridMonth',
+                events: [
+                    {
+                        title: '2.500',
+                        start: '2023-07-10',
+                        end: '2023-07-10'
+                    },
+                    {
+                        title: '1.500',
+                        start: '2023-07-10',
+                        end: '2023-07-10',
+                        color: 'red'
+                    }
+                ]
+            });
+
+            calendar.render();
+        });
+    </script>
+}

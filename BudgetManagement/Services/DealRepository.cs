@@ -71,7 +71,7 @@ namespace BudgetManagement.Services
             using var connection = new SqlConnection(_connectionString);
             return await connection.QueryAsync<Deal>(
                                         @"SELECT D.Id, D.Price, D.DealDate, C.C_Name[Category],
-                                          	     A.A_Name[Account], C.OperationTypeId
+                                          	     A.A_Name[Account], D.Note, C.OperationTypeId
                                           FROM Deal D
                                           INNER JOIN Category C ON C.Id = D.CategoryId
                                           INNER JOIN Account A ON A.Id = D.AccountId
