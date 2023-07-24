@@ -6,6 +6,32 @@
 
 <div id="calendar"></div>
 
+<div class="modal fade" id="dealsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transacciones del día</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th id="dateTableModal" colspan="2"></th>
+                            <th id="incomeTableModal" class="active_element"></th>
+                            <th id="expenseTableModal" class="passive_element"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyTableModal"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts{
     <script src="~/lib/fullcalendar/main.min.js"></script>
 
@@ -15,22 +41,62 @@
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 dayMaxEventRows: 3,
                 initialView: 'dayGridMonth',
-                events: [
-                    {
-                        title: '2.500',
-                        start: '2023-07-10',
-                        end: '2023-07-10'
-                    },
-                    {
-                        title: '1.500',
-                        start: '2023-07-10',
-                        end: '2023-07-10',
-                        color: 'red'
-                    }
-                ]
+                events: '/Deal/GetCalendarTransactions',
+                dateClick: async function (info) {
+                    await GetDealsByDate(info.dateStr)
+                }
             });
 
             calendar.render();
         });
+
+        //Function to get all the deals made according to given day
+        async function GetDealsByDate(date) {
+            const response = await fetch(`/Deal/GetDealsByDate?date=${date}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+
+            const json = await response.json();
+
+            console.log(json);
+
+            let income = 0;
+            let expense = 0;
+            const incomeOperationType = 1;
+
+            const formatter = new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                maximumFractionDigits: 0
+            });
+
+            const rows = json.map(deal => {
+                if (deal.OperationTypeId == incomeOperationType) {
+                    income += deal.price;
+                } else {
+                    expense += deal.price;
+                }
+
+                return `<tr>
+                                <td>${deal.category}</td>
+                                <td>${deal.account}</td>
+                                <td align="right" colspan="2" class="${deal.operationTypeId === incomeOperationType ? "active_element" : "passive_element"}">
+                                    ${formatter.format(deal.price)}
+                                </td>
+                            </tr>`;
+            });
+
+            $("#bodyTableModal").html(rows);
+            $("#incomeTableModal").html(formatter.format(income))
+            $("#expenseTableModal").html(formatter.format(expense));
+            $("#dateTableModal").html(date);
+
+            const DealsModal = new bootstrap.Modal(document.getElementById("dealsModal"));
+
+            DealsModal.show();
+        }
     </script>
 }

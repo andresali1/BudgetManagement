@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
-using Azure.Identity;
 using BudgetManagement.Interfaces;
 using BudgetManagement.Models;
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
@@ -274,6 +272,54 @@ namespace BudgetManagement.Controllers
         public IActionResult Calendar()
         {
             return View();
+        }
+
+        /// <summary>
+        /// Method to get all the transactions for the calendar
+        /// </summary>
+        /// <param name="start">Begin Date</param>
+        /// <param name="end">End Date</param>
+        /// <returns></returns>
+        public async Task<JsonResult> GetCalendarTransactions(DateTime start, DateTime end)
+        {
+            var userId = _userService.GetUserId();
+
+            var deals = await _dealRepository.GetByUserId(new DealByUserParameter()
+            {
+                UserId = userId,
+                BeginDate = start,
+                EndDate = end
+            });
+
+            var calendarEvents = deals.Select(deal => new CalendarEvent()
+            {
+                Title = deal.Price.ToString("N0"),
+                Start = deal.DealDate.ToString("yyyy-MM-dd"),
+                End = deal.DealDate.ToString("yyyy-MM-dd"),
+                Color = deal.OperationTypeId == (int)OperationTypeEnum.Gasto ? "Red" : null
+            });
+
+            return Json(calendarEvents);
+        }
+
+        /// <summary>
+        /// Method to get the transactions made by an user according to date
+        /// </summary>
+        /// <param name="date">Selected Date</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<JsonResult> GetDealsByDate(DateTime date)
+        {
+            var userId = _userService.GetUserId();
+
+            var deals = await _dealRepository.GetByUserId(new DealByUserParameter()
+            {
+                UserId = userId,
+                BeginDate = date,
+                EndDate = date
+            });
+
+            return Json(deals);
         }
 
         //Get: Create

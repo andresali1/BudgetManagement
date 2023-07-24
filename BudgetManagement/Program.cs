@@ -1,5 +1,7 @@
 using BudgetManagement.Interfaces;
+using BudgetManagement.Models;
 using BudgetManagement.Services;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +15,10 @@ builder.Services.AddTransient<ICategoryRepository, CategoryRepository>();
 builder.Services.AddTransient<IDealRepository, DealRepository>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IReportService, ReportService>();
+builder.Services.AddTransient<IAppUserRepository, AppUserRepository>();
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddTransient<IUserStore<AppUser>, AppUserStore>();
+builder.Services.AddIdentityCore<AppUser>();
 
 var app = builder.Build();
 
