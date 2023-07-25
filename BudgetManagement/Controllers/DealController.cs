@@ -2,6 +2,7 @@
 using BudgetManagement.Interfaces;
 using BudgetManagement.Models;
 using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
@@ -514,7 +515,6 @@ namespace BudgetManagement.Controllers
             var userId = _userService.GetUserId();
             var categories = await GetCategoriesByOperationType(userId, operationTypeId);
             return Ok(categories);
-
         }
 
         /// <summary>
@@ -525,7 +525,13 @@ namespace BudgetManagement.Controllers
         private async Task<IEnumerable<SelectListItem>> GetAccounts(int userId)
         {
             var accounts = await _accountRepository.Search(userId);
-            return accounts.Select(x => new SelectListItem(x.A_Name, x.Id.ToString()));
+            var result = accounts.Select(x => new SelectListItem(x.A_Name, x.Id.ToString())).ToList();
+
+            var defaultOption = new SelectListItem("-- Seleccione una Cuenta --", "", true);
+
+            result.Insert(0, defaultOption);
+
+            return result;
         }
 
         /// <summary>
@@ -535,7 +541,13 @@ namespace BudgetManagement.Controllers
         private async Task<IEnumerable<SelectListItem>> GetOperationTypes()
         {
             var operationTypes = await _operationTypeRepository.GetAll();
-            return operationTypes.Select(x => new SelectListItem(x.T_Description, x.Id.ToString()));
+            var result = operationTypes.Select(x => new SelectListItem(x.T_Description, x.Id.ToString())).ToList();
+
+            var defaultOption = new SelectListItem("-- Seleccione un Tipo de Operación --", "", true);
+
+            result.Insert(0, defaultOption);
+
+            return result;
         }
 
         /// <summary>
@@ -546,7 +558,13 @@ namespace BudgetManagement.Controllers
         private async Task<IEnumerable<SelectListItem>> GetCategoriesByOperationType(int userId, int operationTypeId)
         {
             var categories = await _categoryRepository.GetByOperationType(userId, operationTypeId);
-            return categories.Select(x => new SelectListItem(x.C_Name, x.Id.ToString()));
+            var result = categories.Select(x => new SelectListItem(x.C_Name, x.Id.ToString())).ToList();
+
+            var defaultOption = new SelectListItem("-- Seleccione una Categoría --", "", true);
+
+            result.Insert(0, defaultOption);
+
+            return result;
         }
     }
 }

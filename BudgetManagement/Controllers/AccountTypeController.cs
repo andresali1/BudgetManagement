@@ -132,10 +132,10 @@ namespace BudgetManagement.Controllers
         /// <param name="at_name">Account type name</param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> AccountTypeExistsValidation(string at_name)
+        public async Task<IActionResult> AccountTypeExistsValidation(string at_name, int id)
         {
             var userId = _userService.GetUserId();
-            var accountTypeExists = await _accountTypeRepository.Exists(at_name, userId);
+            var accountTypeExists = await _accountTypeRepository.Exists(at_name, userId, id);
 
             if (accountTypeExists)
             {

@@ -26,12 +26,22 @@ namespace BudgetManagement.Controllers
 
         //Get: Index
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(PaginationViewModel paginationVM)
         {
             var userId = _userService.GetUserId();
-            var categories = await _categoryRepository.GetByUserId(userId);
+            var categories = await _categoryRepository.GetByUserId(userId, paginationVM);
+            var categoriesTotal = await _categoryRepository.GetDataAmount(userId);
 
-            return View(categories);
+            var responseVM = new PaginationResponse<Category>
+            {
+                Elements = categories,
+                Page = paginationVM.Page,
+                RecordsByPage = paginationVM.RecordsByPage,
+                AmountOfRecords = categoriesTotal,
+                BaseUrl = Url.Action()
+            };
+
+            return View(responseVM);
         }
 
         //Get: Create
@@ -162,7 +172,13 @@ namespace BudgetManagement.Controllers
         private async Task<IEnumerable<SelectListItem>> GetOperationTypes()
         {
             var operationTypes = await _operationTypeRepository.GetAll();
-            return operationTypes.Select(x => new SelectListItem(x.T_Description, x.Id.ToString()));
+            var result = operationTypes.Select(x => new SelectListItem(x.T_Description, x.Id.ToString())).ToList();
+
+            var defaultOption = new SelectListItem("-- Seleccione un Tipo de Operación --", "", true);
+
+            result.Insert(0, defaultOption);
+
+            return result;
         }
     }
 }

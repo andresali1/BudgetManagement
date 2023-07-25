@@ -11,7 +11,7 @@ namespace BudgetManagement.Models
         [Display(Name = "Nombre")]
         [Required(ErrorMessage = "El campo {0} es requerido")]
         [FirstCapitalLetter]
-        [Remote(action: "AccountTypeExistsValidation", controller: "AccountType")]
+        [Remote(action: "AccountTypeExistsValidation", controller: "AccountType", AdditionalFields = nameof(Id))]
         public string AT_Name { get; set; }
 
         public int UserId { get; set; }

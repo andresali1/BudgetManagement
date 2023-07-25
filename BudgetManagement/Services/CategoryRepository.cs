@@ -37,15 +37,33 @@ namespace BudgetManagement.Services
         /// </summary>
         /// <param name="userId">Id of the user</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Category>> GetByUserId(int userId)
+        public async Task<IEnumerable<Category>> GetByUserId(int userId, PaginationViewModel pagination)
         {
             using var connection = new SqlConnection(_connectionString);
             return await connection.QueryAsync<Category>(
-                                        @"SELECT C.Id, C_Name, OperationTypeId, T_Description, UserId
+                                        @$"SELECT C.Id, C_Name, OperationTypeId, T_Description, UserId
                                           FROM Category C
                                           INNER JOIN OperationType OT ON OT.Id = C.OperationTypeId
-                                          WHERE UserId = @UserId",
+                                          WHERE UserId = @UserId
+                                          ORDER BY C_Name
+                                          OFFSET {pagination.RecordsToSkip}
+                                          ROWS FETCH NEXT {pagination.RecordsByPage}
+                                          ROWS ONLY",
                                         new { userId }
+                                    );
+        }
+
+        /// <summary>
+        /// Method to get the number of categories that belong to one user
+        /// </summary>
+        /// <param name="userId">Id of the user</param>
+        /// <returns></returns>
+        public async Task<int> GetDataAmount(int userId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+
+            return await connection.ExecuteScalarAsync<int>(
+                                        "SELECT COUNT(*) FROM Category WHERE UserId = @UserId", new { userId }
                                     );
         }
 

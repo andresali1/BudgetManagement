@@ -12,6 +12,7 @@ namespace BudgetManagement.Models
         public string C_Name { get; set; }
 
         [Display(Name = "Tipo Operación")]
+        [Required(ErrorMessage = "El campo {0} es requerido")]
         public int OperationTypeId { get; set; }
 
         public int UserId { get; set; }

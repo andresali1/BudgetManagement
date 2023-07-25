@@ -8,7 +8,8 @@ namespace BudgetManagement.Interfaces
         Task Delete(int id);
         Task<Category> GetById(int id, int userId);
         Task<IEnumerable<Category>> GetByOperationType(int userId, int operationTypeId);
-        Task<IEnumerable<Category>> GetByUserId(int userId);
+        Task<IEnumerable<Category>> GetByUserId(int userId, PaginationViewModel pagination);
+        Task<int> GetDataAmount(int userId);
         Task Update(CategoryCreationViewModel categoryVM);
     }
 }

@@ -40,14 +40,15 @@ namespace BudgetManagement.Services
         /// <param name="at_name">Name of the account type</param>
         /// <param name="userId">Id of the user</param>
         /// <returns></returns>
-        public async Task<bool> Exists(string at_name, int userId)
+        public async Task<bool> Exists(string at_name, int userId, int id = 0)
         {
             using var connection = new SqlConnection(_connectionString);
             var exists = await connection.QueryFirstOrDefaultAsync<int>(
                                             @"SELECT 1 FROM AccountType
                                               WHERE AT_Name = @AT_Name
-                                              AND UserId = @UserId;",
-                                            new { at_name, userId }
+                                              AND UserId = @UserId
+                                              AND Id <> @Id;",
+                                            new { at_name, userId, id }
                                            );
 
             return exists == 1;

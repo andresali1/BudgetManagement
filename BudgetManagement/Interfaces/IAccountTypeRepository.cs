@@ -6,7 +6,7 @@ namespace BudgetManagement.Interfaces
     {
         Task Create(AccountType accountType);
         Task Delete(int id);
-        Task<bool> Exists(string at_name, int userId);
+        Task<bool> Exists(string at_name, int userId, int id = 0);
         Task<AccountType> GetById(int id, int userId);
         Task<IEnumerable<AccountType>> GetByUserId(int userId);
         Task Order(IEnumerable<AccountType> orderedAccountTypes);

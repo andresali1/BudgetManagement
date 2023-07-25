@@ -1,12 +1,22 @@
 using BudgetManagement.Interfaces;
 using BudgetManagement.Models;
 using BudgetManagement.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+var autheticatedUsersPolicy = new AuthorizationPolicyBuilder()
+    .RequireAuthenticatedUser()
+    .Build();
+
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AuthorizeFilter(autheticatedUsersPolicy));
+});
+
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IAccountTypeRepository, AccountTypeRepository>();
 builder.Services.AddTransient<IAccountRepository, AccountRepository>();
@@ -18,7 +28,25 @@ builder.Services.AddTransient<IReportService, ReportService>();
 builder.Services.AddTransient<IAppUserRepository, AppUserRepository>();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddTransient<IUserStore<AppUser>, AppUserStore>();
-builder.Services.AddIdentityCore<AppUser>();
+builder.Services.AddTransient<SignInManager<AppUser>>();
+builder.Services.AddIdentityCore<AppUser>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 0;
+}).AddErrorDescriber<IdentityErrorMessages>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignOutScheme = IdentityConstants.ApplicationScheme;
+}).AddCookie(IdentityConstants.ApplicationScheme, options =>
+{
+    options.LoginPath = "/AppUser/Login";
+});
 
 var app = builder.Build();
 
@@ -34,6 +62,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

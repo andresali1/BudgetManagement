@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Category>
+﻿@model PaginationResponse<Category>
 
 @{
     ViewData["Title"] = "Categorías";
@@ -12,6 +12,20 @@
 
 <a asp-action="Create" class="btn btn-primary mb-3">Crear Nueva</a>
 
+<div class="row">
+    <label>Cantidad de registros de mostrar:</label>
+    <div class="mb-3 col-auto">
+        <select asp-for="@Model.RecordsByPage" id="RecordsByPageAmount" class="form-select">
+            <option>3</option>
+            <option>5</option>
+            <option>10</option>
+            <option>25</option>
+        </select>
+    </div>
+</div>
+
+<partial name="_Pagination"/>
+
 <table class="table">
     <thead>
         <tr>
@@ -21,7 +35,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var category in Model)
+        @foreach (var category in Model.Elements)
         {
             <tr>
                 <td>
@@ -38,3 +52,12 @@
         }
     </tbody>
 </table>
+
+@section Scripts{
+    <script>
+        $("#RecordsByPageAmount").change(function(){
+            const recordsByPage = $(this).val();
+            location.href = `/Category/?page=1&recordsByPage=${recordsByPage}`;
+        });
+    </script>
+}

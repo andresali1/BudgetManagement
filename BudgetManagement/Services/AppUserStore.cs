@@ -32,7 +32,6 @@ namespace BudgetManagement.Services
 
         public void Dispose()
         {
-            throw new NotImplementedException();
         }
 
         /// <summary>

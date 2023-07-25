@@ -2,6 +2,7 @@
 using BudgetManagement.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace BudgetManagement.Services
 {
@@ -23,13 +24,16 @@ namespace BudgetManagement.Services
         {
             using var connection = new SqlConnection(_connectionString);
 
-            var id = await connection.QuerySingleAsync<int>(
+            var userId = await connection.QuerySingleAsync<int>(
                                         @"INSERT INTO AppUser (Email, NormalizedEmail, PasswordHash)
-                                          VALUES (@Email, @NormalizedEmail, @PasswordHash)",
+                                          VALUES (@Email, @NormalizedEmail, @PasswordHash);
+                                          SELECT SCOPE_IDENTITY();",
                                         user
                                       );
 
-            return id;
+            await connection.ExecuteAsync("SP_NewUserDataCreation", new { userId }, commandType: CommandType.StoredProcedure);
+
+            return userId;
         }
 
         /// <summary>

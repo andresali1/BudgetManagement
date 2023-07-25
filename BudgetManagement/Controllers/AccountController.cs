@@ -194,7 +194,13 @@ namespace BudgetManagement.Controllers
         private async Task<IEnumerable<SelectListItem>> GetAccountTypes(int userId)
         {
             var accountTypes = await _accountTypeRepository.GetByUserId(userId);
-            return accountTypes.Select(x => new SelectListItem(x.AT_Name, x.Id.ToString()));
+            var result = accountTypes.Select(x => new SelectListItem(x.AT_Name, x.Id.ToString())).ToList();
+
+            var defaultOption = new SelectListItem("-- Seleccione un Tipo de Cuenta --", "", true);
+
+            result.Insert(0, defaultOption);
+
+            return result;
         }
     }
 }

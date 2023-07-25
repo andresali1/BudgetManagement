@@ -14,6 +14,7 @@ namespace BudgetManagement.Models
         public string A_Name { get; set; }
 
         [Display(Name = "Tipo Cuenta")]
+        [Required(ErrorMessage = "El campo {0} es requerido")]
         public int AccountTypeId { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es requerido")]
